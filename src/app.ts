@@ -14,10 +14,6 @@ app.listen(PORT, () => {
 
 mongooseConnection()
 
-app.get("/test", (req, res) => {
-    res.send({status: 200, msg: "success"})
-})
-
 // Create a dynamic middleware function that attaches the bucketname to the request object
 const dynamicBucketMiddleware = (req, res, next) => {
     const bucketName = req.params.bucketName;
