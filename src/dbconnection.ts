@@ -5,9 +5,11 @@ export let gridBucket;
 
 export function mongooseConnection(){
     try{
-        mongoose.connect(url, {}).then(data => {
-            let db = data.connection.db;
-            gridBucket = new mongoose.mongo.GridFSBucket(db, {
+        mongoose.connect(url).then(data => {
+
+            // console.log(mongoose.connection.db)
+            // let db = data.connection.db;
+            gridBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
                 bucketName: "gridUploads"
             })
         });

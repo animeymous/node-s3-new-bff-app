@@ -24,9 +24,10 @@ export function gridStorage(){
     let storageFS = new GridFsStorage({
         url,
         file: (req, file) => {
+            console.log(req['bucketName'])
             return {
                 filename: file.originalname,
-                bucketName: "gridUploads"
+                bucketName: req['bucketName']
             }
         }
     })

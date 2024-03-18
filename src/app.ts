@@ -1,7 +1,8 @@
 import express from "express";
 import {gridBucket, mongooseConnection} from "./dbconnection"
 import { gridStorage, storageFiles } from "./utils/common"
-import * as mongodb from "mongodb"
+import { MongoClient, GridFSBucket } from "mongodb";
+
 
 const app = express();
 
@@ -17,8 +18,15 @@ app.get("/test", (req, res) => {
     res.send({status: 200, msg: "success"})
 })
 
-// File Upload in Bucket
-app.post("/uploads", gridStorage().single("file"), (req, res)=> {
+// Create a dynamic middleware function that attaches the bucketname to the request object
+const dynamicBucketMiddleware = (req, res, next) => {
+    const bucketName = req.params.bucketName;
+    req.bucketName = bucketName;
+    next();
+};
+
+// File Upload in Bucket, bucketname will dynamic
+app.post("/uploads/:bucketName", dynamicBucketMiddleware, gridStorage().single("file"), (req, res)=> {
     try{
         res.send({status: 200, msg: "File uploaded"})
     }catch(error: any){
@@ -27,22 +35,18 @@ app.post("/uploads", gridStorage().single("file"), (req, res)=> {
 })
 
 // will get file from bucket
-app.get("/gridStorage/:fileName", async (req, res) =>{
+app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
     try{
-        let paramFileName = req.params.fileName;
-        let file = gridBucket.find({filename: paramFileName}).toArray((err, result: any) => {
-            if(err){
-                res.send({status: 400, msg: err.message})
-            }else{
-                if(!result || result.length == 0){
-                    res.send({status: 201, msg: "File does not exist"})
-                }else{
-                    gridBucket.openDownloadStreamByName(paramFileName).pipe(res)
-                    res.status(200).json({"msg": "done"})
-                }
-            }
+        MongoClient.connect("mongodb://127.0.0.1/node-s3")
+        .then(data=>{
+            const bucket = new GridFSBucket(data.db(), {
+                bucketName: req.params.bucketName
+              })
+
+            bucket.find({filename: req.params.fileName}).toArray().then(file => {
+                bucket.openDownloadStreamByName(req.params.fileName).pipe(res)
+            })
         })
-       
     }catch(error: any){
         res.send({status: 400, msg: error.message})
     }
