@@ -1,8 +1,8 @@
 import express from "express";
-import {gridBucket, mongooseConnection} from "./dbconnection"
-import { gridStorage, storageFiles } from "./utils/common"
-import { MongoClient, GridFSBucket } from "mongodb";
-
+import {mongooseConnection} from "./dbconnection"
+import { gridStorage } from "./utils/common"
+import { MongoClient, GridFSBucket, ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 const app = express();
 
@@ -25,7 +25,7 @@ const dynamicBucketMiddleware = (req, res, next) => {
     next();
 };
 
-// File Upload in Bucket, bucketname will dynamic
+// PUT Object
 app.post("/uploads/:bucketName", dynamicBucketMiddleware, gridStorage().single("file"), (req, res)=> {
     try{
         res.send({status: 200, msg: "File uploaded"})
@@ -34,7 +34,7 @@ app.post("/uploads/:bucketName", dynamicBucketMiddleware, gridStorage().single("
     }
 })
 
-// will get file from bucket
+// GET Object
 app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
     try{
         MongoClient.connect("mongodb://127.0.0.1/node-s3")
@@ -52,7 +52,7 @@ app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
     }
 })
 
-// will get all file from bucket
+// List Objects
 app.get("/gridStorage/:bucketName", async (req, res) =>{
     try{
         MongoClient.connect("mongodb://127.0.0.1/node-s3")
@@ -70,3 +70,20 @@ app.get("/gridStorage/:bucketName", async (req, res) =>{
     }
 })
 
+// Delete Object
+app.delete("/gridStorage/:bucketName/:id", async (req, res) =>{
+    try{
+        MongoClient.connect("mongodb://127.0.0.1/node-s3")
+        .then(data=>{
+            const bucket = new GridFSBucket(data.db(), {
+                bucketName: req.params.bucketName
+              })
+
+            bucket.delete(new ObjectId(req.params.id)).then(data => {
+                res.send({status: 200, msg: "Object deleted successfully"})
+            })
+        })
+    }catch(error: any){
+        res.send({status: 400, msg: error.message})
+    }
+})
