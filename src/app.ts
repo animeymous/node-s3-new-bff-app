@@ -52,3 +52,21 @@ app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
     }
 })
 
+// will get all file from bucket
+app.get("/gridStorage/:bucketName", async (req, res) =>{
+    try{
+        MongoClient.connect("mongodb://127.0.0.1/node-s3")
+        .then(data=>{
+            const bucket = new GridFSBucket(data.db(), {
+                bucketName: req.params.bucketName
+              })
+
+            bucket.find({}).toArray().then(allFiles => {
+                res.send({status: 200, allFiles: allFiles})
+            })
+        })
+    }catch(error: any){
+        res.send({status: 400, msg: error.message})
+    }
+})
+
