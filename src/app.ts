@@ -57,8 +57,12 @@ app.delete("/gridStorage/:bucketName/:id", async (req, res) =>{
                 bucketName: req.params.bucketName
               })
 
-            bucket.delete(new ObjectId(req.params.id)).then(data => {
+            bucket.delete(new ObjectId(req.params.id))
+            .then(data => {
                 res.send({status: 200, msg: "Object deleted successfully"})
+            })
+            .catch(error => {
+                res.status(400).send({msg: error.message})
             })
         })
     }catch(error: any){
