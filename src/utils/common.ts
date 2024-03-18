@@ -19,6 +19,7 @@ export function storageFiles() {
     return fileUpload;
 }
 
+// will create bucket and store file in it
 export function gridStorage(){
     let storageFS = new GridFsStorage({
         url,
