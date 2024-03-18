@@ -52,24 +52,6 @@ app.post("/uploads/:bucketName", dynamicBucketMiddleware, gridStorage().single("
     }
 })
 
-// List Objects
-app.get("/gridStorage/:bucketName", async (req, res) =>{
-    try{
-        MongoClient.connect("mongodb://127.0.0.1/node-s3")
-        .then(data=>{
-            const bucket = new GridFSBucket(data.db(), {
-                bucketName: req.params.bucketName
-              })
-
-            bucket.find({}).toArray().then(allFiles => {
-                res.send({status: 200, allFiles: allFiles})
-            })
-        })
-    }catch(error: any){
-        res.send({status: 400, msg: error.message})
-    }
-})
-
 // Delete Object
 app.delete("/gridStorage/:bucketName/:id", async (req, res) =>{
     try{
@@ -81,6 +63,24 @@ app.delete("/gridStorage/:bucketName/:id", async (req, res) =>{
 
             bucket.delete(new ObjectId(req.params.id)).then(data => {
                 res.send({status: 200, msg: "Object deleted successfully"})
+            })
+        })
+    }catch(error: any){
+        res.send({status: 400, msg: error.message})
+    }
+})
+
+// List Objects
+app.get("/gridStorage/:bucketName", async (req, res) =>{
+    try{
+        MongoClient.connect("mongodb://127.0.0.1/node-s3")
+        .then(data=>{
+            const bucket = new GridFSBucket(data.db(), {
+                bucketName: req.params.bucketName
+              })
+
+            bucket.find({}).toArray().then(allFiles => {
+                res.send({status: 200, allFiles: allFiles})
             })
         })
     }catch(error: any){
