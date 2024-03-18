@@ -19,7 +19,7 @@ app.get("/test", (req, res) => {
 
 app.post("/uploads", gridStorage().single("file"), (req, res)=> {
     try{
-        res.status(200).json({"msg": "done"})
+        res.send({status: 200, msg: "File uploaded"})
     }catch(error: any){
         res.send({status: 400, msg: error.message})
     }
