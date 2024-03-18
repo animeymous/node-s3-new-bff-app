@@ -87,3 +87,23 @@ app.get("/gridStorage/:bucketName", async (req, res) =>{
         res.send({status: 400, msg: error.message})
     }
 })
+
+// List buckets
+app.get("/gridStorage", async (req, res) =>{
+    try{
+        MongoClient.connect("mongodb://127.0.0.1/node-s3")
+        .then(data=>{
+            // console.log(data)
+            const db = data.db()
+            db.listCollections().toArray().then((collectionNames) => {
+            const bucketNames = collectionNames
+                .filter((collection) => collection.name.endsWith('.files'))
+                    .map((collection) => collection.name.replace('.files', ''));
+
+                res.send({status: 200, bucketNames: bucketNames})
+            })
+        })
+    }catch(error: any){
+        res.send({status: 400, msg: error.message})
+    }
+})
