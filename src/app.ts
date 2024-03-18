@@ -1,11 +1,12 @@
 import express from "express";
+import cors from "cors"
 import {mongooseConnection} from "./dbconnection"
 import { gridStorage } from "./utils/common"
 import { MongoClient, GridFSBucket, ObjectId } from "mongodb";
 import mongoose from "mongoose";
 
 const app = express();
-
+app.use(cors())
 const PORT = 3000;
 
 app.listen(PORT, () => {
@@ -34,7 +35,7 @@ app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
                 bucketName: req.params.bucketName
               })
 
-            bucket.find({filename: req.params.fileName}).toArray().then(file => {
+                          bucket.find({filename: req.params.fileName}).toArray().then(file => {
                 bucket.openDownloadStreamByName(req.params.fileName).pipe(res)
             })
         })
@@ -79,8 +80,8 @@ app.get("/gridStorage/:bucketName", async (req, res) =>{
                 bucketName: req.params.bucketName
               })
 
-            bucket.find({}).toArray().then(allFiles => {
-                res.send({status: 200, allFiles: allFiles})
+            bucket.find({}).toArray().then(allListsInBucket => {
+                res.send({status: 200, allListsInBucket: allListsInBucket})
             })
         })
     }catch(error: any){
