@@ -25,15 +25,6 @@ const dynamicBucketMiddleware = (req, res, next) => {
     next();
 };
 
-// PUT Object
-app.post("/uploads/:bucketName", dynamicBucketMiddleware, gridStorage().single("file"), (req, res)=> {
-    try{
-        res.send({status: 200, msg: "File uploaded"})
-    }catch(error: any){
-        res.send({status: 400, msg: error.message})
-    }
-})
-
 // GET Object
 app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
     try{
@@ -47,6 +38,15 @@ app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
                 bucket.openDownloadStreamByName(req.params.fileName).pipe(res)
             })
         })
+    }catch(error: any){
+        res.send({status: 400, msg: error.message})
+    }
+})
+
+// PUT Object
+app.post("/uploads/:bucketName", dynamicBucketMiddleware, gridStorage().single("file"), (req, res)=> {
+    try{
+        res.send({status: 200, msg: "File uploaded"})
     }catch(error: any){
         res.send({status: 400, msg: error.message})
     }
