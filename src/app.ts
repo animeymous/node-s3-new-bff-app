@@ -30,6 +30,11 @@ app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
                 bucketName: req.params.bucketName
               })
 
+            // incase if have to find file by id
+            // bucket.find({_id: new ObjectId(req.params.fileName)}).toArray().then(data => {
+            //     bucket.openDownloadStream(new ObjectId(req.params.fileName)).pipe(res)
+            // })
+
             bucket.find({filename: req.params.fileName}).toArray().then(file => {
                 bucket.openDownloadStreamByName(req.params.fileName).pipe(res)
             })
