@@ -26,7 +26,8 @@ export function gridStorage(){
         file: (req, file) => {
             console.log(req['bucketName'])
             return {
-                filename: file.originalname,
+                filename: file.originalname.substr(0, file.originalname.indexOf('.')) + "_" + Date.now() + 
+                file.originalname.substr(file.originalname.indexOf(".")),
                 bucketName: req['bucketName']
             }
         }
