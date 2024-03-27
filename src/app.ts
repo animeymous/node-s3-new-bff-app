@@ -36,7 +36,11 @@ app.get("/gridStorage/:bucketName/:fileName", async (req, res) =>{
             // })
 
             bucket.find({filename: req.params.fileName}).toArray().then(file => {
-                bucket.openDownloadStreamByName(req.params.fileName).pipe(res)
+                if(file.length < 1){
+                    res.send({status: 400, msg: "object not found"})
+                }else{
+                    bucket.openDownloadStreamByName(req.params.fileName).pipe(res)
+                }
             })
         })
     }catch(error: any){
